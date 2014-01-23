@@ -4,23 +4,23 @@ class Contact< ActiveRecord::Base
 
   validates :email, :format => { :with => /.+@\w+\.\w{2,4}/ },
             :uniqueness => true
-  validates :phone, :format => { :with => /[0-9]{10,}/ }
-
+  validates :phone_number_length_only_digits, numericality: {greater_than: 9, message: 'Please enter a phone number with at least 10 digits'}
+  validates :company, confirmation: true
 
   def full_name
     "#{self.first_name} #{self.last_name}"
   end
 
-  def self.find_by_area_code(condition, value)
-    ## e.g. LIKE '%312'
-    data = $db.execute("SELECT * from contacts where phone LIKE ?",value
-    fetch_contact(data)
+  def self.find_by_area_code
+    phone_number.match(/[\d]{3}/).to_s
   end
 
-  def self.fetch_contact(data)
-    data.map do |attributes|
-      Student.new( Hash[attributes.map { |k,v| [k.to_sym, v] }] )
-    end
-  end
+   def phone_number_length_only_digits
+      phone_number.gsub(/[^0-9]/,'').length
+   end
+
+   def to_s
+      "#{self.name}\n#{self.company}\np: #{self.phone}\ne: #{self.email_address}\na: #{self.address}"
+   end
 
 end
